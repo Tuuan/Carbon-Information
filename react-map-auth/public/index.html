@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Map Login App</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body { font-family: sans-serif; margin: 0; padding: 0; }
+    .container { display: flex; justify-content: center; align-items: center; height: 100vh; }
+    .form-box { width: 300px; border: 1px solid #ccc; padding: 20px; border-radius: 8px; }
+    #map { height: 100vh; width: 100vw; display: none; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+<div id="auth" class="container">
+  <div class="form-box">
+    <h2>Login</h2>
+    <input type="email" id="email" placeholder="Email" style="width: 100%; margin-bottom: 10px;"><br>
+    <input type="password" id="password" placeholder="Password" style="width: 100%; margin-bottom: 10px;"><br>
+    <button onclick="login()">Login</button>
+    <p>or <a href="#" onclick="toggleSignup()">Signup</a></p>
+  </div>
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+  let isSignup = false;
+
+  function toggleSignup() {
+    isSignup = !isSignup;
+    const formBox = document.querySelector('.form-box');
+    formBox.innerHTML = isSignup ?
+    `<h2>Signup</h2>
+      <input type="text" id="name" placeholder="Name" style="width: 100%; margin-bottom: 10px;"><br>
+      <input type="email" id="email" placeholder="Email" style="width: 100%; margin-bottom: 10px;"><br>
+      <input type="password" id="password" placeholder="Password" style="width: 100%; margin-bottom: 10px;"><br>
+      <input type="password" id="confirm" placeholder="Confirm Password" style="width: 100%; margin-bottom: 10px;"><br>
+      <button onclick="signup()">Signup</button>
+      <p>or <a href="#" onclick="toggleSignup()">Login</a></p>`
+    :
+    `<h2>Login</h2>
+      <input type="email" id="email" placeholder="Email" style="width: 100%; margin-bottom: 10px;"><br>
+      <input type="password" id="password" placeholder="Password" style="width: 100%; margin-bottom: 10px;"><br>
+      <button onclick="login()">Login</button>
+      <p>or <a href="#" onclick="toggleSignup()">Signup</a></p>`;
+  }
+
+  function login() {
+    // Giả lập đăng nhập
+    const email = document.getElementById("email").value;
+    if (email) {
+      showMap();
+    }
+  }
+
+  function signup() {
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+    const pass = document.getElementById("password").value;
+    const confirm = document.getElementById("confirm").value;
+    if (name && email && pass && pass === confirm) {
+      alert("Signup success! Please login.");
+      toggleSignup();
+    } else {
+      alert("Check your inputs again!");
+    }
+  }
+
+  function showMap() {
+    document.getElementById("auth").style.display = "none";
+    const mapDiv = document.getElementById("map");
+    mapDiv.style.display = "block";
+
+    const map = L.map('map').setView([21.0285, 105.8542], 13); // Hà Nội
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    const coordLabel = L.control({position: 'bottomleft'});
+    coordLabel.onAdd = function () {
+      const div = L.DomUtil.create('div', 'coord-label');
+      div.style.padding = "6px";
+      div.style.background = "white";
+      div.innerHTML = "Move mouse to see coordinates";
+      map.on('mousemove', function(e) {
+        div.innerHTML = `Lat: ${e.latlng.lat.toFixed(5)}, Lng: ${e.latlng.lng.toFixed(5)}`;
+      });
+      return div;
+    };
+    coordLabel.addTo(map);
+  }
+</script>
+
+</body>
+</html>
